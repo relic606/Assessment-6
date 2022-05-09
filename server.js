@@ -47,6 +47,7 @@ app.get('/api/robots/five', (req, res) => {
         let compDuo = shuffled.slice(6, 8)
         res.status(200).send({choices, compDuo})
     } catch (error) {
+        rollbar.error("Error getting five bots")
         console.log('ERROR GETTING FIVE BOTS', error)
         res.sendStatus(400)
     }
