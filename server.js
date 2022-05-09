@@ -3,12 +3,21 @@ const path = require('path')
 const app = express()
 const {bots, playerRecord} = require('./data')
 const {shuffleArray} = require('./utils')
+var Rollbar = require('rollbar')
+var rollbar = new Rollbar({
+    accessToken: '61ea6689668f4a1796f503da7c7e9d53',
+    captureUncaught: true,
+    captureUnhandledRejections: true,
+})
+
+rollbar.log('Hello world!')
 
 require('dotenv').config();
 
 app.use(express.json())
 
 app.get("/", (req, res) => {
+    rollbar.info("HTML served successfully")
     res.sendFile(path.join(__dirname, "/public/index.html"))
 })
 
@@ -24,12 +33,14 @@ app.get('/api/robots', (req, res) => {
     try {
         res.status(200).send(botsArr)
     } catch (error) {
+        rollbar.error("Error getting bots")
         console.log('ERROR GETTING BOTS', error)
         res.sendStatus(400)
     }
 })
 
 app.get('/api/robots/five', (req, res) => {
+    rollbar.log("Five bots selected successfully", {author: "Andy", type: "manual entry"})
     try {
         let shuffled = shuffleArray(bots)
         let choices = shuffled.slice(0, 5)
@@ -67,6 +78,7 @@ app.post('/api/duel', (req, res) => {
             res.status(200).send('You won!')
         }
     } catch (error) {
+        rollbar.error('Error dueling')
         console.log('ERROR DUELING', error)
         res.sendStatus(400)
     }
@@ -74,12 +86,16 @@ app.post('/api/duel', (req, res) => {
 
 app.get('/api/player', (req, res) => {
     try {
+        rollbar.log("Player record displayed")
         res.status(200).send(playerRecord)
     } catch (error) {
+        rollbar.error('Error getting player stats')
         console.log('ERROR GETTING PLAYER STATS', error)
         res.sendStatus(400)
     }
 })
+
+app.use(rollbar.errorHandler())
 
 const port = process.env.PORT || 3000
 

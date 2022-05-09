@@ -175,6 +175,7 @@ const getAllBots = () => {
                 allBotsDiv.innerHTML += botHtml
             })
         })
+        .catch(err => console.log(err))
 }
 
 drawBtn.addEventListener('click', drawFive)
